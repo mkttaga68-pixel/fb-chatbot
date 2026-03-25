@@ -1,0 +1,18 @@
+{
+  "name": "fb-messenger-ai-chatbot",
+  "version": "1.0.0",
+  "description": "Facebook Messenger Chatbot tích hợp Claude AI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "@anthropic-ai/sdk": "^0.24.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
