@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatPage Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c1017;--bg2:#121820;--bg3:#1a2233;--card:#141c28;--border:#1e2d42;--border2:#243449;--accent:#00e5b4;--accent2:#3b82f6;--accent3:#f59e0b;--danger:#ef4444;--text:#e2e8f0;--text2:#7a8fa8;--text3:#3d5068;--font:'Be Vietnam Pro',sans-serif;--mono:'JetBrains Mono',monospace;--r:10px;--rl:14px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow:hidden;}
+
+/* LOGIN */
+.login-wrap{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);padding:36px;width:340px;text-align:center;}
+.login-logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px;}
+.login-title{font-size:20px;font-weight:800;margin-bottom:4px;}
+.login-sub{font-size:12px;color:var(--text3);margin-bottom:24px;}
+.login-input{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;margin-bottom:12px;}
+.login-input:focus{border-color:var(--border2);}
+.login-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:8px;color:var(--bg);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;}
+.login-err{font-size:12px;color:var(--danger);margin-top:8px;display:none;}
+
+/* SIDEBAR */
+.sidebar{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;}
+.logo{padding:18px 16px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.logo-text{font-size:14px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-ver{font-size:9px;color:var(--text3);-webkit-text-fill-color:var(--text3);}
+.nav{padding:10px 8px;flex:1;overflow-y:auto;}
+.nav-g{margin-bottom:18px;}
+.nav-gl{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.4px;text-transform:uppercase;padding:0 8px;margin-bottom:5px;}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--text2);font-size:12.5px;font-weight:500;transition:all .15s;margin-bottom:2px;border:1px solid transparent;}
+.ni:hover{background:var(--bg3);color:var(--text);}
+.ni.active{background:rgba(0,229,180,.08);color:var(--accent);border-color:rgba(0,229,180,.15);}
+.ni-ico{font-size:14px;width:17px;text-align:center;}
+.ni-bdg{margin-left:auto;background:var(--accent);color:var(--bg);font-size:9px;font-weight:800;padding:1px 6px;border-radius:20px;}
+
+.ps{padding:10px 8px;border-top:1px solid var(--border);}
+.ps-lbl{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;padding:0 4px;margin-bottom:7px;}
+.ps-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;margin-bottom:3px;border:1px solid transparent;transition:all .15s;}
+.ps-item:hover{background:var(--bg3);}
+.ps-item.active{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.18);}
+.ps-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.ps-nm{font-size:11px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.odot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:bl 2s infinite;}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.ps-add{width:100%;padding:6px;border:1px dashed var(--border2);border-radius:7px;background:transparent;color:var(--text3);font-size:11px;cursor:pointer;font-family:var(--font);margin-top:3px;transition:all .15s;}
+.ps-add:hover{border-color:var(--accent);color:var(--accent);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.tb{height:54px;flex-shrink:0;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 22px;gap:10px;}
+.tb-title{font-size:14px;font-weight:700;flex:1;}
+.tb-badge{background:rgba(0,229,180,.1);border:1px solid rgba(0,229,180,.22);color:var(--accent);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.btn{padding:6px 13px;border-radius:7px;border:none;font-family:var(--font);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;}
+.bp{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);}
+.bp:hover{opacity:.9;}
+.bg{background:var(--bg3);color:var(--text2);border:1px solid var(--border);}
+.bg:hover{color:var(--text);}
+.content{flex:1;overflow-y:auto;padding:20px 22px;}
+
+/* TABS */
+.tab{display:none;animation:fu .22s ease;}
+.tab.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* STATS */
+.sr{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;position:relative;overflow:hidden;transition:transform .2s;}
+.sc:hover{transform:translateY(-2px);}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc.c1::after{background:linear-gradient(90deg,var(--accent),transparent);}
+.sc.c2::after{background:linear-gradient(90deg,var(--accent2),transparent);}
+.sc.c3::after{background:linear-gradient(90deg,var(--accent3),transparent);}
+.sc.c4::after{background:linear-gradient(90deg,var(--danger),transparent);}
+.sc-ico{font-size:18px;margin-bottom:9px;}
+.sc-v{font-size:24px;font-weight:800;margin-bottom:2px;}
+.sc-l{font-size:11px;color:var(--text2);}
+.sc-c{font-size:10px;font-weight:600;margin-top:5px;}
+.cu{color:var(--accent);}
+.cd{color:var(--danger);}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* CARD */
+.cc{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;}
+.ch{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ct{font-size:12.5px;font-weight:700;}
+.cb{padding:16px;}
+.cb0{padding:0;}
+
+/* CHART */
+.cw{height:100px;display:flex;align-items:flex-end;gap:5px;}
+.bg-{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;}
+.br{width:100%;border-radius:3px 3px 0 0;cursor:pointer;}
+.bl{font-size:9px;color:var(--text3);}
+
+/* CONV */
+.cv{display:flex;align-items:center;gap:9px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;}
+.cv:last-child{border-bottom:none;}
+.cv:hover{background:var(--bg3);}
+.cv.ur{border-left:3px solid var(--accent);}
+.cav{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.ci{flex:1;min-width:0;}
+.cn{font-size:12px;font-weight:700;margin-bottom:2px;}
+.cp{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cm{text-align:right;flex-shrink:0;}
+.ctime{font-size:10px;color:var(--text3);margin-bottom:2px;}
+.cbdg{background:var(--accent);color:var(--bg);font-size:9px;font-weight:800;padding:1px 5px;border-radius:10px;display:inline-block;}
+
+/* CHAT */
+.chl{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 98px);}
+.clp{border-right:1px solid var(--border);overflow-y:auto;background:var(--card);}
+.clh{padding:12px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;background:var(--bg2);display:flex;align-items:center;justify-content:space-between;}
+.cmp{display:flex;flex-direction:column;background:var(--bg);}
+.cmh{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;background:var(--bg2);}
+.cmb{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.msg{display:flex;gap:7px;max-width:72%;}
+.msg.bot{align-self:flex-start;}
+.msg.usr{align-self:flex-end;flex-direction:row-reverse;}
+.mav{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;background:linear-gradient(135deg,var(--accent),var(--accent2));}
+.mb{padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.6;}
+.msg.bot .mb{background:var(--bg3);border:1px solid var(--border);border-radius:3px 10px 10px 10px;}
+.msg.usr .mb{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--bg);border-radius:10px 3px 10px 10px;}
+.mt{font-size:9px;color:var(--text3);margin-top:2px;padding:0 3px;}
+
+/* SCRIPT */
+.tbi2{display:flex;gap:3px;margin-bottom:14px;background:var(--bg3);border-radius:7px;padding:3px;}
+.tb2{flex:1;padding:7px;font-size:11.5px;font-weight:600;border:none;border-radius:5px;cursor:pointer;background:transparent;color:var(--text2);font-family:var(--font);transition:all .15s;}
+.tb2.active{background:var(--card);color:var(--text);}
+.ip{display:none;}
+.ip.active{display:block;}
+.scard{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);margin-bottom:9px;overflow:hidden;}
+.sh{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);}
+.snum{width:20px;height:20px;border-radius:50%;background:rgba(0,229,180,.15);color:var(--accent);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.enum{width:20px;height:20px;border-radius:50%;background:rgba(245,158,11,.15);color:var(--accent3);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sni{font-size:12px;font-weight:600;color:var(--text);flex:1;background:transparent;border:none;outline:none;font-family:var(--font);}
+.sdel{background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:17px;line-height:1;padding:0 2px;}
+.sdel:hover{color:var(--danger);}
+.sb{padding:10px 12px;display:flex;flex-direction:column;gap:7px;}
+.sta{width:100%;min-height:60px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:12.5px;color:var(--text);font-family:var(--font);line-height:1.6;resize:vertical;outline:none;box-sizing:border-box;}
+.sta:focus{border-color:var(--border2);}
+.sta.sm{min-height:40px;}
+.mr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.mchip{display:flex;align-items:center;gap:4px;padding:3px 8px;background:rgba(0,229,180,.1);border:1px solid rgba(0,229,180,.18);border-radius:20px;font-size:10.5px;color:var(--accent);}
+.mchip.v{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.18);color:var(--accent2);}
+.mx{background:none;border:none;cursor:pointer;color:inherit;font-size:13px;padding:0;line-height:1;}
+.ab{display:flex;align-items:center;gap:4px;padding:3px 8px;border:1px dashed var(--border2);border-radius:20px;font-size:10.5px;color:var(--text3);cursor:pointer;background:transparent;font-family:var(--font);}
+.ab:hover{border-color:var(--accent);color:var(--accent);}
+.kwr{display:flex;align-items:center;gap:6px;}
+.kwl{font-size:10px;color:var(--text3);white-space:nowrap;}
+.kwi{flex:1;padding:4px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:11.5px;color:var(--text);font-family:var(--font);outline:none;}
+.rsel{padding:4px 8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;font-size:10.5px;color:var(--text2);font-family:var(--font);outline:none;}
+.addbtn{width:100%;padding:8px;border:1px dashed var(--border2);border-radius:var(--r);background:transparent;color:var(--text3);font-size:11.5px;cursor:pointer;font-family:var(--font);transition:all .15s;margin-bottom:12px;}
+.addbtn:hover{border-color:var(--accent);color:var(--accent);}
+.ai-blk{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:13px;margin-bottom:10px;}
+.ai-lbl{font-size:10.5px;font-weight:600;color:var(--text2);margin-bottom:7px;}
+.ai-ta{width:100%;min-height:80px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:9px 11px;font-size:12.5px;color:var(--text);font-family:var(--font);line-height:1.7;resize:vertical;outline:none;box-sizing:border-box;}
+
+/* PAGES */
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px;transition:all .2s;cursor:pointer;}
+.pcard:hover{border-color:var(--accent);transform:translateY(-2px);}
+.pch{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.pav{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.pcn{font-size:12.5px;font-weight:700;}
+.pct{font-size:9.5px;color:var(--text3);}
+.psg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:11px;}
+.pst{background:var(--bg3);border-radius:7px;padding:8px;text-align:center;}
+.psv{font-size:16px;font-weight:800;color:var(--accent);}
+.psl{font-size:9px;color:var(--text3);}
+.tag{padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:600;}
+.tg{background:rgba(0,229,180,.1);color:var(--accent);border:1px solid rgba(0,229,180,.18);}
+.tb_{background:rgba(59,130,246,.1);color:var(--accent2);border:1px solid rgba(59,130,246,.18);}
+.to{background:rgba(245,158,11,.1);color:var(--accent3);border:1px solid rgba(245,158,11,.18);}
+.apc{background:var(--card);border:2px dashed var(--border2);border-radius:var(--rl);padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;cursor:pointer;min-height:180px;transition:all .2s;}
+.apc:hover{border-color:var(--accent);}
+
+/* SETTINGS */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{margin-bottom:13px;}
+.fl{font-size:10.5px;font-weight:600;color:var(--text2);margin-bottom:5px;display:block;}
+.fi{width:100%;padding:8px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12.5px;outline:none;}
+.fi:focus{border-color:var(--border2);}
+.fsel{width:100%;padding:8px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:var(--font);font-size:12.5px;outline:none;}
+.slr{display:flex;align-items:center;gap:9px;}
+.sl{flex:1;accent-color:var(--accent);}
+.sv{font-size:11.5px;font-weight:600;color:var(--accent);min-width:58px;}
+.ib{background:rgba(0,229,180,.05);border:1px solid rgba(0,229,180,.13);border-radius:7px;padding:10px 12px;margin-bottom:12px;}
+.ib p{font-size:11.5px;color:var(--text2);line-height:1.7;}
+
+/* ACTIVITY */
+.ai_{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);}
+.ai_:last-child{border-bottom:none;}
+.ad{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.at{font-size:11.5px;color:var(--text);line-height:1.5;}
+.at2{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* MODAL */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px);}
+.mbg.show{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rl);padding:22px;width:90%;max-width:440px;animation:fu .22s ease;}
+.mt_{font-size:15px;font-weight:800;margin-bottom:16px;}
+.mf{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:11px 16px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;z-index:2000;transform:translateY(70px);opacity:0;transition:all .25s;box-shadow:0 6px 20px rgba(0,0,0,.5);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.ok{border-left:3px solid var(--accent);}
+.toast.err{border-left:3px solid var(--danger);}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text3);font-size:13px;}
+.spin{width:20px;height:20px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;margin-right:10px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">🤖</div>
+    <div class="login-title">ChatPage Manager</div>
+    <div class="login-sub">Đăng nhập để quản lý bot của bạn</div>
+    <input class="login-input" type="password" id="loginPwd" placeholder="Mật khẩu..." onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Đăng nhập</button>
+    <div class="login-err" id="loginErr">Sai mật khẩu, thử lại!</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">🤖</div>
+    <div><div class="logo-text">ChatPage</div><div class="logo-ver">Manager v2.0</div></div>
+  </div>
+  <nav class="nav">
+    <div class="nav-g"><div class="nav-gl">Tổng quan</div>
+      <div class="ni active" onclick="goTab('dashboard',this)"><span class="ni-ico">📊</span> Dashboard</div>
+      <div class="ni" onclick="goTab('convs',this)"><span class="ni-ico">💬</span> Hội thoại <span class="ni-bdg" id="unreadBdg">0</span></div>
+    </div>
+    <div class="nav-g"><div class="nav-gl">Bot</div>
+      <div class="ni" onclick="goTab('script',this)"><span class="ni-ico">✍️</span> Kịch bản</div>
+      <div class="ni" onclick="goTab('pages',this)"><span class="ni-ico">📱</span> Fanpages</div>
+    </div>
+    <div class="nav-g"><div class="nav-gl">Hệ thống</div>
+      <div class="ni" onclick="goTab('settings',this)"><span class="ni-ico">⚙️</span> Cài đặt</div>
+    </div>
+  </nav>
+  <div class="ps">
+    <div class="ps-lbl">Fanpage đang chọn</div>
+    <div class="ps-item active"><div class="ps-av" style="background:linear-gradient(135deg,#00e5b4,#3b82f6)">G</div><span class="ps-nm">Nguyễn Trà Giang 17</span><div class="odot"></div></div>
+    <button class="ps-add" onclick="showM('addPage')">+ Thêm Fanpage</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="tb">
+    <div class="tb-title" id="topTitle">📊 Dashboard</div>
+    <span class="tb-badge" id="botStatus">🟢 Bot đang hoạt động</span>
+    <button class="btn bg" style="font-size:10.5px" onclick="loadStats()">🔄 Làm mới</button>
+    <button class="btn bp" onclick="saveScript()">💾 Lưu kịch bản</button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="tab active" id="tab-dashboard">
+      <div class="sr">
+        <div class="sc c1"><div class="sc-ico">💬</div><div class="sc-v" id="s1">—</div><div class="sc-l">Tin nhắn hôm nay</div><div class="sc-c cu">↑ 18% hôm qua</div></div>
+        <div class="sc c2"><div class="sc-ico">👥</div><div class="sc-v" id="s2">—</div><div class="sc-l">Tổng khách chat</div><div class="sc-c cu">Đang hoạt động</div></div>
+        <div class="sc c3"><div class="sc-ico">📞</div><div class="sc-v" id="s3">—</div><div class="sc-l">Số điện thoại chốt</div><div class="sc-c cu">↑ 27% hôm qua</div></div>
+        <div class="sc c4"><div class="sc-ico">💰</div><div class="sc-v" id="s4">—</div><div class="sc-l">Chi phí API</div><div class="sc-c cd">Hôm nay</div></div>
+      </div>
+      <div class="g2">
+        <div class="cc"><div class="ch"><span class="ct">📈 Tin nhắn 7 ngày</span></div><div class="cb"><div class="cw" id="chart7d"></div></div></div>
+        <div class="cc"><div class="ch"><span class="ct">🔔 Hoạt động</span></div><div class="cb" id="actFeed"><div class="loading"><div class="spin"></div>Đang tải...</div></div></div>
+      </div>
+      <div class="cc"><div class="ch"><span class="ct">💬 Hội thoại gần đây</span><button class="btn bg" style="font-size:10px;padding:4px 9px" onclick="goTab('convs',document.querySelector('[onclick*=convs]'))">Xem tất cả</button></div><div class="cb0" id="recentConvs"><div class="loading"><div class="spin"></div>Đang tải...</div></div></div>
+    </div>
+
+    <!-- CONVERSATIONS -->
+    <div class="tab" id="tab-convs">
+      <div class="chl cc">
+        <div class="clp">
+          <div class="clh">Hội thoại <span id="convCount" style="color:var(--text3);font-weight:400;font-size:11px"></span></div>
+          <div id="convList"><div class="loading"><div class="spin"></div></div></div>
+        </div>
+        <div class="cmp" id="chatPanel">
+          <div class="cmh"><div class="mav" id="chatAv">?</div><div><div style="font-size:13px;font-weight:700" id="chatName">Chọn hội thoại</div><div style="font-size:10px;color:var(--text3)">Fanpage • Nguyễn Trà Giang 17</div></div></div>
+          <div class="cmb" id="chatMsgs"><div class="loading" style="height:100%">Chọn hội thoại để xem</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPT -->
+    <div class="tab" id="tab-script">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div><div style="font-size:17px;font-weight:800">✍️ Kịch bản Bot</div><div style="font-size:11.5px;color:var(--text2);margin-top:3px">Soạn từng bước • đính kèm ảnh/video • cài ngoại lệ</div></div>
+        <button class="btn bp" onclick="saveScript()">💾 Lưu & cập nhật bot</button>
+      </div>
+      <div class="tbi2">
+        <button class="tb2 active" onclick="swInner('flow',this)">📋 Kịch bản chính</button>
+        <button class="tb2" onclick="swInner('exc',this)">⚡ Ngoại lệ</button>
+        <button class="tb2" onclick="swInner('ai',this)">🤖 AI linh hoạt</button>
+      </div>
+      <div class="ip active" id="ip-flow"><div id="flowSteps"></div><button class="addbtn" onclick="addFlowStep()">+ Thêm bước mới</button></div>
+      <div class="ip" id="ip-exc">
+        <div class="ib" style="margin-bottom:12px"><p>Khi khách nhắn đúng từ khóa → bot phản hồi ngay + gửi media → tiếp tục về bước bạn chọn</p></div>
+        <div id="excSteps"></div><button class="addbtn" onclick="addExcStep()">+ Thêm tình huống ngoại lệ</button>
+      </div>
+      <div class="ip" id="ip-ai">
+        <div class="ib"><p>Claude AI tự xử lý mọi tình huống không có trong kịch bản, dựa trên nguyên tắc bạn đặt ra</p></div>
+        <div class="ai-blk"><div class="ai-lbl">Nguyên tắc AI phải tuân theo</div><textarea class="ai-ta" id="aiRules"></textarea></div>
+      </div>
+    </div>
+
+    <!-- PAGES -->
+    <div class="tab" id="tab-pages">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div><div style="font-size:17px;font-weight:800">📱 Quản lý Fanpages</div><div style="font-size:11.5px;color:var(--text2);margin-top:3px">Kết nối và quản lý nhiều Fanpage</div></div>
+        <button class="btn bp" onclick="showM('addPage')">+ Thêm Fanpage</button>
+      </div>
+      <div class="pg">
+        <div class="pcard"><div class="pch"><div class="pav" style="background:linear-gradient(135deg,#00e5b4,#3b82f6)">💄</div><div><div class="pcn">Nguyễn Trà Giang 17</div><div class="pct">Làm đẹp & Mỹ phẩm</div></div></div>
+          <div class="psg"><div class="pst"><div class="psv" id="pg1m">—</div><div class="psl">Chat hôm nay</div></div><div class="pst"><div class="psv" id="pg1p">—</div><div class="psl">SĐT chốt</div></div></div>
+          <div style="display:flex;gap:5px"><span class="tag tg">🟢 Hoạt động</span><span class="tag tb_">Haiku</span></div></div>
+        <div class="apc" onclick="showM('addPage')"><div style="font-size:26px">➕</div><div style="font-size:11.5px;color:var(--text3);text-align:center;font-weight:500">Thêm Fanpage mới</div></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="tab" id="tab-settings">
+      <div style="font-size:17px;font-weight:800;margin-bottom:16px">⚙️ Cài đặt hệ thống</div>
+      <div class="sg">
+        <div class="cc"><div class="ch"><span class="ct">🔑 API Keys</span></div><div class="cb">
+          <div class="fg"><label class="fl">Server URL (Railway)</label><input class="fi" id="serverUrl" placeholder="https://fb-chatbot-xxxx.up.railway.app"></div>
+          <div class="fg"><label class="fl">Dashboard Password</label><input class="fi" type="password" id="dashPwd" placeholder="Mật khẩu mới..."></div>
+          <div class="ib"><p>API Keys được cấu hình qua Railway Variables để bảo mật</p></div>
+          <button class="btn bp" onclick="saveServerUrl()">Lưu cài đặt</button>
+        </div></div>
+        <div class="cc"><div class="ch"><span class="ct">⏱️ Tốc độ chat</span></div><div class="cb">
+          <div class="fg"><label class="fl">Thời gian "đọc tin" trước khi gõ</label>
+            <div class="slr"><input type="range" class="sl" min="500" max="5000" step="500" value="1500" id="rdSlider" oninput="upSlider('rdSlider','rdOut',v=>v/1000+'s')"><span class="sv" id="rdOut">1.5s</span></div></div>
+          <div class="fg"><label class="fl">Tốc độ gõ</label>
+            <div class="slr"><input type="range" class="sl" min="1" max="5" step="1" value="3" id="tsSlider" oninput="upSlider('tsSlider','tsOut',v=>['Rất chậm','Chậm','Trung bình','Nhanh','Rất nhanh'][v-1])"><span class="sv" id="tsOut">Trung bình</span></div></div>
+          <div class="fg"><label class="fl">Delay giữa các đoạn</label>
+            <div class="slr"><input type="range" class="sl" min="500" max="3000" step="250" value="1200" id="bdSlider" oninput="upSlider('bdSlider','bdOut',v=>v/1000+'s')"><span class="sv" id="bdOut">1.2s</span></div></div>
+          <div class="ib"><p id="typPreview">Tin 100 ký tự → typing khoảng <strong>4.2 giây</strong></p></div>
+          <div class="fg"><label class="fl">Model AI</label>
+            <select class="fsel" id="modelSel"><option value="claude-haiku-4-5-20251001">Claude Haiku (Tiết kiệm)</option><option value="claude-sonnet-4-20250514">Claude Sonnet (Tốt nhất)</option></select></div>
+          <button class="btn bp" onclick="saveSpeedSettings()">Lưu tốc độ</button>
+        </div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="mbg" id="addPage"><div class="modal">
+  <div class="mt_">➕ Thêm Fanpage mới</div>
+  <div class="fg"><label class="fl">Tên Fanpage</label><input class="fi" id="newPageName" placeholder="VD: Shop Mỹ Phẩm ABC"></div>
+  <div class="fg"><label class="fl">Page Access Token</label><input class="fi" id="newPageToken" placeholder="EAAxxxxxx..."></div>
+  <div class="fg"><label class="fl">Lĩnh vực</label><select class="fsel"><option>Làm đẹp & Mỹ phẩm</option><option>Thời trang</option><option>Thực phẩm</option><option>Spa</option><option>Khác</option></select></div>
+  <div class="mf"><button class="btn bg" onclick="hideM('addPage')">Hủy</button><button class="btn bp" onclick="hideM('addPage');toast('Đã thêm Fanpage!','ok')">Thêm</button></div>
+</div></div>
+
+<div class="toast" id="toast"><span id="tIco">✅</span><span id="tMsg">OK</span></div>
+<input type="file" id="fileInput" accept="image/*,video/*" style="display:none" onchange="onFile(event)">
+
+<script>
+// ── STATE ──
+let TOKEN = localStorage.getItem('cp_token') || '';
+let SERVER = localStorage.getItem('cp_server') || '';
+let curFileTarget = null, curFileStepId = null;
+let scCount = 0, excCount = 0;
+
+const scriptData = { flowSteps: [], excSteps: [], aiRules: '' };
+
+// ── AUTH ──
+async function doLogin() {
+  const pwd = document.getElementById('loginPwd').value;
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  try {
+    const res = await api('/api/auth/login', 'POST', { password: pwd });
+    if (res.ok) {
+      TOKEN = res.token;
+      localStorage.setItem('cp_token', TOKEN);
+      document.getElementById('loginWrap').style.display = 'none';
+      initApp();
+    }
+  } catch(e) { err.style.display = 'block'; }
+}
+
+async function api(path, method='GET', body=null) {
+  const base = SERVER || '';
+  const res = await fetch(base + path, {
+    method,
+    headers: { 'Content-Type': 'application/json', 'x-dashboard-token': TOKEN },
+    body: body ? JSON.stringify(body) : null,
+  });
+  if (!res.ok) throw new Error('API error ' + res.status);
+  return res.json();
+}
+
+// Auto login if token exists
+window.onload = () => {
+  const sv = localStorage.getItem('cp_server');
+  if (sv) { SERVER = sv; document.getElementById('serverUrl').value = sv; }
+  if (TOKEN) {
+    document.getElementById('loginWrap').style.display = 'none';
+    initApp();
+  }
+};
+
+async function initApp() {
+  await loadStats();
+  await loadScript();
+  await loadConvs();
+  setInterval(loadStats, 30000);
+  setInterval(loadConvs, 15000);
+}
+
+// ── STATS ──
+async function loadStats() {
+  try {
+    const d = await api('/api/stats');
+    document.getElementById('s1').textContent = d.todayMessages.toLocaleString();
+    document.getElementById('s2').textContent = d.totalCustomers.toLocaleString();
+    document.getElementById('s3').textContent = d.phonesCollected.toLocaleString();
+    document.getElementById('s4').textContent = '$' + d.apiCost;
+    document.getElementById('pg1m').textContent = d.todayMessages;
+    document.getElementById('pg1p').textContent = d.phonesCollected;
+    buildChart(d.last7Days);
+    buildActivity(d);
+  } catch(e) {
+    ['s1','s2','s3','s4'].forEach(id => document.getElementById(id).textContent = 'N/A');
+  }
+}
+
+function buildChart(data) {
+  const el = document.getElementById('chart7d');
+  el.innerHTML = '';
+  if (!data || !data.length) { el.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:20px">Chưa có dữ liệu</div>'; return; }
+  const max = Math.max(...data.map(d => d.count), 1);
+  data.forEach((d, i) => {
+    const w = document.createElement('div'); w.className = 'bg-';
+    const b = document.createElement('div'); b.className = 'br';
+    b.style.height = Math.max((d.count / max * 90), 4) + 'px';
+    b.style.background = i === data.length - 1 ? 'linear-gradient(180deg,var(--accent2),rgba(59,130,246,.3))' : 'linear-gradient(180deg,var(--accent),rgba(0,229,180,.3))';
+    b.title = d.label + ': ' + d.count;
+    const l = document.createElement('div'); l.className = 'bl'; l.textContent = d.label;
+    w.appendChild(b); w.appendChild(l); el.appendChild(w);
+  });
+}
+
+function buildActivity(data) {
+  const acts = [
+    data.phonesCollected > 0 ? `Đã thu thập <strong>${data.phonesCollected}</strong> số điện thoại hôm nay` : 'Chưa có số điện thoại hôm nay',
+    `Tổng <strong>${data.totalCustomers}</strong> khách đã chat`,
+    `Chi phí API hôm nay: <strong>$${data.apiCost}</strong>`,
+  ];
+  document.getElementById('actFeed').innerHTML = acts.map((a, i) => `
+    <div class="ai_"><div class="ad" style="background:${['var(--accent)','var(--accent2)','var(--accent3)'][i]}"></div>
+    <div><div class="at">${a}</div><div class="at2">Vừa cập nhật</div></div></div>`).join('');
+}
+
+// ── CONVERSATIONS ──
+async function loadConvs() {
+  try {
+    const data = await api('/api/conversations');
+    document.getElementById('convCount').textContent = '(' + data.length + ')';
+    document.getElementById('unreadBdg').textContent = data.length;
+    const recent = data.slice(0, 3);
+    document.getElementById('recentConvs').innerHTML = recent.map(c => `
+      <div class="cv" onclick="goTab('convs',null);loadChat('${c.senderId}')">
+        <div class="cav" style="background:linear-gradient(135deg,#00e5b4,#3b82f6)">${c.senderId.slice(-2).toUpperCase()}</div>
+        <div class="ci"><div class="cn">Khách ${c.senderId.slice(-6)}</div><div class="cp">${c.lastMessage}</div></div>
+        <div class="cm"><div class="ctime">${timeAgo(c.timestamp)}</div></div>
+      </div>`).join('');
+    document.getElementById('convList').innerHTML = data.map(c => `
+      <div class="cv" onclick="loadChat('${c.senderId}')">
+        <div class="cav" style="background:linear-gradient(135deg,#00e5b4,#3b82f6)">${c.senderId.slice(-2).toUpperCase()}</div>
+        <div class="ci"><div class="cn">Khách ${c.senderId.slice(-6)}</div><div class="cp">${c.lastMessage}</div></div>
+        <div class="cm"><div class="ctime">${timeAgo(c.timestamp)}</div><span class="cbdg">${c.msgCount}</span></div>
+      </div>`).join('') || '<div class="loading">Chưa có hội thoại</div>';
+  } catch(e) {
+    document.getElementById('convList').innerHTML = '<div class="loading">Không thể tải</div>';
+  }
+}
+
+async function loadChat(senderId) {
+  document.getElementById('chatAv').textContent = senderId.slice(-2).toUpperCase();
+  document.getElementById('chatName').textContent = 'Khách ' + senderId.slice(-6);
+  document.getElementById('chatMsgs').innerHTML = '<div class="loading"><div class="spin"></div>Đang tải...</div>';
+  try {
+    const msgs = await api('/api/conversations/' + senderId);
+    document.getElementById('chatMsgs').innerHTML = msgs.map(m => `
+      <div class="msg ${m.role === 'assistant' ? 'bot' : 'usr'}">
+        ${m.role === 'assistant' ? '<div class="mav">🤖</div>' : `<div class="mav" style="background:linear-gradient(135deg,#667eea,#764ba2)">${senderId.slice(-2).toUpperCase()}</div>`}
+        <div><div class="mb">${m.content}</div><div class="mt">${new Date(m.timestamp).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}</div></div>
+      </div>`).join('') || '<div class="loading">Chưa có tin nhắn</div>';
+    document.getElementById('chatMsgs').scrollTop = 99999;
+  } catch(e) { document.getElementById('chatMsgs').innerHTML = '<div class="loading">Lỗi tải tin nhắn</div>'; }
+}
+
+// ── SCRIPT ──
+async function loadScript() {
+  try {
+    const d = await api('/api/script');
+    scriptData.flowSteps = d.flowSteps || [];
+    scriptData.excSteps = d.excSteps || [];
+    scriptData.aiRules = d.aiRules || '';
+    scCount = Math.max(...scriptData.flowSteps.map(s => s.id), 0);
+    excCount = Math.max(...scriptData.excSteps.map(s => s.id), 0);
+    document.getElementById('aiRules').value = scriptData.aiRules;
+    renderFlow(); renderExc();
+  } catch(e) { toast('Không thể tải kịch bản', 'err'); }
+}
+
+async function saveScript() {
+  try {
+    scriptData.aiRules = document.getElementById('aiRules').value;
+    await api('/api/script', 'POST', scriptData);
+    toast('Đã lưu & cập nhật bot!', 'ok');
+  } catch(e) { toast('Lỗi lưu kịch bản: ' + e.message, 'err'); }
+}
+
+function renderFlow() {
+  document.getElementById('flowSteps').innerHTML = scriptData.flowSteps.map((s, i) => `
+    <div class="scard">
+      <div class="sh"><div class="snum">${i+1}</div>
+        <input class="sni" value="${s.name}" onchange="scriptData.flowSteps[${i}].name=this.value">
+        <button class="sdel" onclick="delFlow(${s.id})">×</button></div>
+      <div class="sb">
+        <textarea class="sta" onchange="scriptData.flowSteps[${i}].text=this.value">${s.text}</textarea>
+        <div class="mr">
+          ${(s.media||[]).map((m,mi)=>`<div class="mchip ${m.type==='video'?'v':''}">${m.type==='video'?'▶':'🖼'} ${m.name.length>16?m.name.slice(0,14)+'…':m.name}<button class="mx" onclick="delFlowMedia(${s.id},${mi})">×</button></div>`).join('')}
+          <button class="ab" onclick="pickFile('flow',${s.id})">📎 Đính kèm</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderExc() {
+  const opts = scriptData.flowSteps.map((s,i)=>`<option value="${s.id}">${i+1}. ${s.name}</option>`).join('');
+  document.getElementById('excSteps').innerHTML = scriptData.excSteps.map((s, i) => `
+    <div class="scard">
+      <div class="sh"><div class="enum">!</div>
+        <input class="sni" value="${s.name}" onchange="scriptData.excSteps[${i}].name=this.value">
+        <button class="sdel" onclick="delExc(${s.id})">×</button></div>
+      <div class="sb">
+        <div class="kwr"><span class="kwl">Từ khóa:</span><input class="kwi" value="${s.keywords}" onchange="scriptData.excSteps[${i}].keywords=this.value" placeholder="giá, bao nhiêu, ..."></div>
+        <textarea class="sta sm" onchange="scriptData.excSteps[${i}].text=this.value">${s.text}</textarea>
+        <div class="mr">
+          ${(s.media||[]).map((m,mi)=>`<div class="mchip ${m.type==='video'?'v':''}">${m.type==='video'?'▶':'🖼'} ${m.name.length>16?m.name.slice(0,14)+'…':m.name}<button class="mx" onclick="delExcMedia(${s.id},${mi})">×</button></div>`).join('')}
+          <button class="ab" onclick="pickFile('exc',${s.id})">📎 Đính kèm</button>
+          <span class="kwl" style="margin-left:4px">Sau đó về:</span>
+          <select class="rsel" onchange="scriptData.excSteps[${i}].resumeId=parseInt(this.value)">${opts.replace(`value="${s.resumeId}"`,`value="${s.resumeId}" selected`)}</select>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function addFlowStep() { scriptData.flowSteps.push({id:++scCount,name:'Bước mới',text:'',media:[]}); renderFlow(); }
+function delFlow(id) { scriptData.flowSteps = scriptData.flowSteps.filter(s=>s.id!==id); renderFlow(); }
+function addExcStep() { scriptData.excSteps.push({id:++excCount,name:'Tình huống mới',keywords:'',text:'',media:[],resumeId:scriptData.flowSteps[0]?.id||1}); renderExc(); }
+function delExc(id) { scriptData.excSteps = scriptData.excSteps.filter(s=>s.id!==id); renderExc(); }
+function delFlowMedia(sid,mi) { const s=scriptData.flowSteps.find(s=>s.id===sid); if(s){s.media.splice(mi,1);renderFlow();} }
+function delExcMedia(sid,mi) { const s=scriptData.excSteps.find(s=>s.id===sid); if(s){s.media.splice(mi,1);renderExc();} }
+
+function pickFile(target, stepId) { curFileTarget=target; curFileStepId=stepId; document.getElementById('fileInput').value=''; document.getElementById('fileInput').click(); }
+function onFile(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const obj = { name:file.name, type:file.type.startsWith('video/')?'video':'image', url:URL.createObjectURL(file) };
+  if(curFileTarget==='flow'){const s=scriptData.flowSteps.find(s=>s.id===curFileStepId);if(s){s.media.push(obj);renderFlow();}}
+  else{const s=scriptData.excSteps.find(s=>s.id===curFileStepId);if(s){s.media.push(obj);renderExc();}}
+}
+
+// ── SETTINGS ──
+async function saveSpeedSettings() {
+  try {
+    const settings = {
+      readDelayMin: parseInt(document.getElementById('rdSlider').value),
+      typingSpeed: parseInt(document.getElementById('tsSlider').value),
+      betweenMessages: parseInt(document.getElementById('bdSlider').value),
+      model: document.getElementById('modelSel').value,
+    };
+    await api('/api/settings', 'POST', settings);
+    toast('Đã lưu tốc độ chat!', 'ok');
+  } catch(e) { toast('Lỗi lưu cài đặt', 'err'); }
+}
+
+function saveServerUrl() {
+  SERVER = document.getElementById('serverUrl').value.trim();
+  localStorage.setItem('cp_server', SERVER);
+  toast('Đã lưu Server URL!', 'ok');
+}
+
+function upSlider(inId, outId, fmt) {
+  const v = parseInt(document.getElementById(inId).value);
+  document.getElementById(outId).textContent = fmt(v);
+  const speed = parseInt(document.getElementById('tsSlider').value);
+  const cpm = [0.02,0.05,0.08,0.12,0.18][speed-1];
+  const t = Math.min(Math.max(100/cpm,2000),8000)/1000;
+  document.getElementById('typPreview').innerHTML = `Tin 100 ký tự → typing khoảng <strong>${t.toFixed(1)} giây</strong>`;
+}
+
+// ── NAV ──
+function goTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(el) el.classList.add('active');
+  const titles = {dashboard:'📊 Dashboard',convs:'💬 Hội thoại',script:'✍️ Kịch bản',pages:'📱 Fanpages',settings:'⚙️ Cài đặt'};
+  document.getElementById('topTitle').textContent = titles[name]||name;
+}
+
+function swInner(name, el) {
+  document.querySelectorAll('.tb2').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.ip').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ip-'+name).classList.add('active');
+}
+
+// ── MODAL ──
+function showM(id) { document.getElementById(id).classList.add('show'); }
+function hideM(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.mbg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
+
+// ── TOAST ──
+function toast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  document.getElementById('tMsg').textContent = msg;
+  document.getElementById('tIco').textContent = type==='ok'?'✅':'❌';
+  t.className = 'toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+
+// ── UTILS ──
+function timeAgo(ts) {
+  const d = Math.floor((Date.now()-ts)/1000);
+  if(d<60) return d+'s';
+  if(d<3600) return Math.floor(d/60)+'p';
+  if(d<86400) return Math.floor(d/3600)+'h';
+  return Math.floor(d/86400)+'d';
+}
+</script>
+</body>
+</html>
